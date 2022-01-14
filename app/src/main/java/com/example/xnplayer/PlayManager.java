@@ -39,7 +39,9 @@ public class PlayManager {
                 .build();
 
         // 添加一个监听器来接收来自播放器的事件.
-        player.addListener(eventListener);
+        if (eventListener != null) {
+            player.addListener(eventListener);
+        }
     }
 
     public static PlayManager get() {
@@ -61,6 +63,9 @@ public class PlayManager {
     }
 
     public void play(String uri) {
+        if (!player.getPlayWhenReady()){
+            player.play();
+        }
         MediaItem mediaItem = new MediaItem.Builder().setUri(uri).build();
         mediaItems = Collections.singletonList(mediaItem);
         play();
@@ -74,10 +79,20 @@ public class PlayManager {
             playCurrPos = 0;
         }
 
+        player.setMediaItems(mediaItems);
         player.prepare();
         player.play();
 
     }
+
+    public void pause() {
+        player.pause();
+    }
+
+    public void stop() {
+        player.stop();
+    }
+
 
     private void checkThread() {
         if (Looper.myLooper() != Looper.getMainLooper()) {
@@ -87,6 +102,7 @@ public class PlayManager {
 
     public void setListener(Player.Listener eventListener) {
         this.eventListener = eventListener;
+        player.addListener(eventListener);
     }
 
     public void destory() {
