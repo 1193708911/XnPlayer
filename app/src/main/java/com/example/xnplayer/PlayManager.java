@@ -63,7 +63,7 @@ public class PlayManager {
     }
 
     public void play(String uri) {
-        if (!player.getPlayWhenReady()){
+        if (!player.getPlayWhenReady()) {
             player.play();
         }
         MediaItem mediaItem = new MediaItem.Builder().setUri(uri).build();
@@ -72,6 +72,10 @@ public class PlayManager {
     }
 
     public void play() {
+        if (player.isPlaying()) {
+            return;
+        }
+
         if (mediaItems.isEmpty()) {
             throw new NullPointerException("mediaItems is empty");
         }
@@ -86,7 +90,9 @@ public class PlayManager {
     }
 
     public void pause() {
-        player.pause();
+        if (player.isPlaying()) {
+            player.pause();
+        }
     }
 
     public void stop() {
