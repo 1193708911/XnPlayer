@@ -15,6 +15,7 @@ import android.widget.TextView;
 import androidx.appcompat.app.AppCompatActivity;
 
 import com.google.android.exoplayer2.ExoPlaybackException;
+import com.google.android.exoplayer2.MediaItem;
 import com.google.android.exoplayer2.Player;
 import com.google.android.exoplayer2.Timeline;
 import com.google.android.exoplayer2.audio.AudioAttributes;
@@ -41,76 +42,30 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         setContentView(R.layout.activity_main);
         initView();
 
-        PlayManager.get().setListener(new Player.Listener() {
+        initData();
+        PlayManager.get().setPlayListener(new IPlayerListener() {
             @Override
-            public void onTimelineChanged(Timeline timeline, int reason) {
-                Log.d(TAG, "onTimelineChanged: ");
+            public void updateProgress(long duration, long progress) {
+                Log.d(TAG, "updateProgress:duration= " + TimeUtil.asTime(duration) + "  progress=" + TimeUtil.asTime(progress));
+                mTimer.setText(TimeUtil.asTime(progress));
+                mEndTime.setText(TimeUtil.asTime(duration));
+                mSeekbar.setMax((int) duration);
+                mSeekbar.setProgress((int) progress);
             }
 
             @Override
-            public void onIsLoadingChanged(boolean isLoading) {
-                Log.d(TAG, "onIsLoadingChanged: "+isLoading);
+            public void playStateChange(State state) {
+                Log.d(TAG, "playStateChange: "+System.currentTimeMillis()+"  state="+state);
+                mStatus.setText(state.toString());
             }
 
             @Override
-            public void onPlaybackStateChanged(int state) {
-                Log.d(TAG, "onPlaybackStateChanged: ");
+            public void playError(String error) {
 
-                switch (state) {
-                    case STATE_IDLE:
-                        Log.d(TAG, "STATE_IDLE: ");
-                        break;
-                    case STATE_BUFFERING:
-                        Log.d(TAG, "STATE_BUFFERING: ");
-                        break;
-                    case STATE_READY:
-                        Log.d(TAG, "STATE_READY: ");
-                        break;
-                    case STATE_ENDED:
-                        Log.d(TAG, "STATE_ENDED: ");
-                        break;
-                }
-
-
-            }
-
-            @Override
-            public void onPlayWhenReadyChanged(boolean playWhenReady, int reason) {
-                Log.d(TAG, "onPlayWhenReadyChanged: " + playWhenReady);
-            }
-
-            @Override
-            public void onIsPlayingChanged(boolean isPlaying) {
-
-                Log.d(TAG, "onIsPlayingChanged: " + isPlaying);
-            }
-
-            @Override
-            public void onPlayerError(ExoPlaybackException error) {
-                Log.d(TAG, "onPlayerError: ");
-            }
-
-            @Override
-            public void onEvents(Player player, Player.Events events) {
-                Log.d(TAG, "onEvents: ");
-            }
-
-            @Override
-            public void onAudioSessionIdChanged(int audioSessionId) {
-                Log.d(TAG, "onAudioSessionIdChanged: ");
-            }
-
-            @Override
-            public void onAudioAttributesChanged(AudioAttributes audioAttributes) {
-                Log.d(TAG, "onAudioAttributesChanged: ");
-            }
-
-            @Override
-            public void onSkipSilenceEnabledChanged(boolean skipSilenceEnabled) {
-                Log.d(TAG, "onSkipSilenceEnabledChanged: ");
             }
         });
     }
+
 
     private void initView() {
         mTimer = (TextView) findViewById(R.id.timer);
@@ -133,17 +88,41 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         mPrevious.setOnClickListener(this);
         mFastforward.setOnClickListener(this);
         mRewind.setOnClickListener(this);
+        mSeekbar.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
+            @Override
+            public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
+
+            }
+
+            @Override
+            public void onStartTrackingTouch(SeekBar seekBar) {
+
+            }
+
+            @Override
+            public void onStopTrackingTouch(SeekBar seekBar) {
+                Log.d(TAG, "onStopTrackingTouch: " + seekBar.getProgress());
+                PlayManager.get().seekTo(seekBar.getProgress());
+            }
+        });
+
     }
 
-    //    String mp3Url = "http://webfs.ali.kugou.com/202201141523/6e7a9690422ca22d7f79f82f40fd082e/part/0/960163/KGTX/CLTX001/147269665a824f81cde8d7bb657683ea.mp3";
-    private static String mp3Url = "https://api.frdic.com/api/v3/media/mp3/ebc3fc81-fa2f-4aa1" +
+    String mp3Url = "http://repo.bfw.wiki/bfwrepo/sound/5c89fd22dea6948307.mp3";
+    String mp3Url1 = "https://api.frdic.com/api/v3/media/mp3/ebc3fc81-fa2f-4aa1" +
             "-b1cd-042f7dde8377?mediatype=audio&agent=%2Feusoft_ting_en_android%2F9.2.1%2F%2Fcar%2F%2F&token=QYN%20mp3_db6aeb75d9e31b9a916b223323a154c0da1c5d144fdc2c42fd810254a256951a";
+
+    private void initData() {
+        PlayManager.get().addMediaItems(new MediaItem.Builder().setUri(mp3Url).build());
+        PlayManager.get().addMediaItems(new MediaItem.Builder().setUri(mp3Url1).build());
+    }
+
 
     @Override
     public void onClick(View v) {
         switch (v.getId()) {
             case R.id.play:
-                PlayManager.get().play(mp3Url);
+                PlayManager.get().play();
                 break;
             case R.id.pause:
                 PlayManager.get().pause();
@@ -152,12 +131,17 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                 PlayManager.get().stop();
                 break;
             case R.id.next:
+                PlayManager.get().nextSong();
                 break;
             case R.id.previous:
+                PlayManager.get().previousSong();
                 break;
             case R.id.fastforward:
+
+                PlayManager.get().fastForward(5000L);
                 break;
             case R.id.rewind:
+                PlayManager.get().rewind(5000L);
                 break;
         }
     }
