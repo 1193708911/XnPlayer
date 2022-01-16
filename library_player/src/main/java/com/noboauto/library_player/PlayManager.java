@@ -1,10 +1,11 @@
-package com.example.xnplayer;
+package com.noboauto.library_player;
 
 import static com.google.android.exoplayer2.Player.STATE_BUFFERING;
 import static com.google.android.exoplayer2.Player.STATE_ENDED;
 import static com.google.android.exoplayer2.Player.STATE_IDLE;
 import static com.google.android.exoplayer2.Player.STATE_READY;
 
+import android.content.Context;
 import android.os.Handler;
 import android.os.Looper;
 import android.os.Message;
@@ -34,6 +35,7 @@ public class PlayManager {
     public static final int UPDATE_PROGRESS_MSG = 1;
     public static final int REMOVE_PROGRESS_MSG = 2;
     public static final int updateDelay = 500;
+    private static IPlayerListener eventListener;
 
     private Handler handler = new Handler(Looper.getMainLooper()) {
         @Override
@@ -67,21 +69,19 @@ public class PlayManager {
         }
     }
 
-    private IPlayerListener eventListener;
-
     private PlayManager() {
-        initPlayer();
+
     }
 
-    private void initPlayer() {
+    public static void initPlayer(Context context) {
         // 创建带宽
-        BandwidthMeter bandwidthMeter = new DefaultBandwidthMeter.Builder(App.context).build();
+        BandwidthMeter bandwidthMeter = new DefaultBandwidthMeter.Builder(context).build();
         // 创建轨道选择工厂 视频每一这的画面如何渲染,实现默认的实现类
-        RenderersFactory videoTrackSelectionFactory = new DefaultRenderersFactory(App.context);
+        RenderersFactory videoTrackSelectionFactory = new DefaultRenderersFactory(context);
         // 创建轨道选择实例 视频的音视频轨道如何加载,使用默认的轨道选择器
-        TrackSelector trackSelector = new DefaultTrackSelector(App.context);
+        TrackSelector trackSelector = new DefaultTrackSelector(context);
         // 创建播放器实例
-        player = new SimpleExoPlayer.Builder(App.context, videoTrackSelectionFactory)
+        player = new SimpleExoPlayer.Builder(context, videoTrackSelectionFactory)
                 .setBandwidthMeter(bandwidthMeter)
                 .setTrackSelector(trackSelector)
                 .build();
@@ -267,7 +267,7 @@ public class PlayManager {
         }
     }
 
-    IPlayerListener.State mCurrState = IPlayerListener.State.IDLE;
+    static IPlayerListener.State mCurrState = IPlayerListener.State.IDLE;
 
     public IPlayerListener.State getCurrentState() {
         return mCurrState;

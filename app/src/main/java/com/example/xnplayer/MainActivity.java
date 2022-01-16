@@ -1,9 +1,5 @@
 package com.example.xnplayer;
 
-import static com.google.android.exoplayer2.Player.STATE_BUFFERING;
-import static com.google.android.exoplayer2.Player.STATE_ENDED;
-import static com.google.android.exoplayer2.Player.STATE_IDLE;
-import static com.google.android.exoplayer2.Player.STATE_READY;
 
 import android.os.Bundle;
 import android.util.Log;
@@ -14,11 +10,9 @@ import android.widget.TextView;
 
 import androidx.appcompat.app.AppCompatActivity;
 
-import com.google.android.exoplayer2.ExoPlaybackException;
-import com.google.android.exoplayer2.MediaItem;
-import com.google.android.exoplayer2.Player;
-import com.google.android.exoplayer2.Timeline;
-import com.google.android.exoplayer2.audio.AudioAttributes;
+import com.noboauto.library_player.IPlayerListener;
+import com.noboauto.library_player.PlayManager;
+import com.noboauto.library_player.TimeUtil;
 
 public class MainActivity extends AppCompatActivity implements View.OnClickListener {
 
@@ -69,7 +63,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
 
     private void initView() {
         mTimer = (TextView) findViewById(R.id.timer);
-        mSeekbar = (SeekBar) findViewById(R.id.seekbar);
+        mSeekbar = findViewById(R.id.seekbar);
         mEndTime = (TextView) findViewById(R.id.endTime);
         mStatus = (TextView) findViewById(R.id.status);
 
@@ -113,8 +107,8 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
             "-b1cd-042f7dde8377?mediatype=audio&agent=%2Feusoft_ting_en_android%2F9.2.1%2F%2Fcar%2F%2F&token=QYN%20mp3_db6aeb75d9e31b9a916b223323a154c0da1c5d144fdc2c42fd810254a256951a";
 
     private void initData() {
-        PlayManager.get().addMediaItems(new MediaItem.Builder().setUri(mp3Url).build());
-        PlayManager.get().addMediaItems(new MediaItem.Builder().setUri(mp3Url1).build());
+//        PlayManager.get().addMediaItems(new MediaItem.Builder().setUri(mp3Url).build());
+//        PlayManager.get().addMediaItems(new MediaItem.Builder().setUri(mp3Url1).build());
     }
 
 
@@ -122,7 +116,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     public void onClick(View v) {
         switch (v.getId()) {
             case R.id.play:
-                PlayManager.get().play();
+                PlayManager.get().play(mp3Url);
                 break;
             case R.id.pause:
                 PlayManager.get().pause();

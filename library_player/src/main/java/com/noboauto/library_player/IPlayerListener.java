@@ -1,4 +1,4 @@
-package com.example.xnplayer;
+package com.noboauto.library_player;
 
 public interface IPlayerListener {
 
